@@ -1,85 +1,77 @@
-# Posto
+# ⛽ Posto de Combustível e Recarga
 
-O posto atende uma fila bem misturada: carros, moto, bicicleta, carro elétrico, carro híbrido, patinete elétrico, gerador e cortador de grama. Alguns usam a bomba de combustível, outros usam o carregador, um deles usa os dois e um não usa nenhum.
+Projeto de POO em Java + Spring Boot. Um posto atende uma fila de clientes bem diferentes entre si (carro, moto, bicicleta, carro elétrico, híbrido, patinete elétrico, gerador e cortador de grama). Cada um usa a bomba, o carregador, os dois ou nenhum.
 
-A tela já está pronta: é um pequeno jogo em 3D. Você clica em um cliente da fila, escolhe **Abastecer** ou **Recarregar**, e ele vai até a bomba ou o carregador. Só que, por enquanto, o posto não sabe atender ninguém. Todo mundo volta para a fila com um ✖ e a mensagem "Ainda não sei abastecer...".
+A interface visual é um pequeno jogo em 3D: clique em um cliente, escolha **Abastecer** ou **Recarregar** e veja o resultado (✔ atendido, ✖ não usa).
 
-Seu trabalho é ensinar o posto a atender cada cliente.
+## ▶️ Como rodar
 
----
+**Requisitos:** Java 17 ou superior e conexão com a internet (a tela carrega o three.js online).
 
-## Como rodar
+**Pela IDE (VS Code, IntelliJ, Eclipse):** abra a pasta do projeto e execute a classe `PostoApplication`.
 
-1. Abra o projeto na sua IDE.
-2. Rode a classe `PostoApplication` (ou `./mvnw spring-boot:run` no terminal).
-3. Acesse http://localhost:8080.
+**Pelo terminal:**
 
-A tela carrega o three.js da internet, então precisa de conexão.
-
----
-
-## O que já está pronto
-
-Você **não precisa mexer** em nada dentro de `controller`, `templates` e `static`.
-
-No pacote `model` já existem as classes que representam os clientes.:
-
-Cada classe concreta já tem seus atributos e o construtor. Quem tem tanque já tem `capacidadeTanque` e `tanque`, e quem tem bateria já tem `capacidadeBateria` e `bateria`. O que falta é o **comportamento**.
-
-A classe `Posto` guarda a fila e tem 4 métodos marcados com `TODO`.
-
----
-
-## O que você deve fazer
-
-### 1. Criar as interfaces
-
-Crie duas interfaces no pacote `model`:
-
-* `Abastecivel` com os métodos `encherTanque()` que retorna um double e `getPercentualTanque()` que retorna um int.
-* `Recarregavel` com os métodos `carregarBateria()` que retorna um double e `getPercentualBateria()` que retorna um int.
-
-### 2. Implementar nas classes certas
-
-Decida quais classes implementam cada interface. Pense no mundo real:
-
-| Cliente | Como funciona |
+| Sistema | Comando |
 | --- | --- |
-| Carro e Moto | motor a gasolina |
-| Bicicleta | só pedal |
-| Carro elétrico e patinete elétrico | bateria |
-| Carro híbrido | gasolina **e** bateria |
-| Gerador e cortador de grama | motor a gasolina, mas não são veículos |
+| Windows (Git Bash ou PowerShell) | `./mvnw.cmd spring-boot:run` |
+| Linux / macOS | `./mvnw spring-boot:run` |
 
-Exemplo de como o tanque deve se comportar: um carro com 50 litros de capacidade e 10 no tanque recebe 40 litros em `encherTanque()` e passa a ter 100% em `getPercentualTanque()`.
+Depois abra no navegador: **http://localhost:8080**
 
-### 3. Completar os TODOs da classe Posto
+Se a porta 8080 estiver ocupada, troque em `src/main/resources/application.properties` com `server.port=8081`.
 
-| Método | O que deve fazer |
+## 🧩 Como funciona
+
+O `Posto` não sabe quem é o cliente. Ele só pergunta **o que o cliente sabe fazer**, por meio de duas interfaces:
+
+| Interface | Métodos |
 | --- | --- |
-| `abastecer(Long id)` | Se o cliente tiver tanque, enche e devolve `"Gol 1.0 abastecido com 40,0 litros"`. Se não tiver, devolve `"Caloi Elite não usa a bomba de combustível"`. |
-| `recarregar(Long id)` | Mesma ideia para a bateria: `"BYD Dolphin recarregado com 45,0 kWh"` ou `"Gol 1.0 não usa o carregador"`. |
-| `percentualTanque(Cliente cliente)` | Devolve o percentual do tanque, ou `null` se o cliente não tiver tanque. |
-| `percentualBateria(Cliente cliente)` | Devolve o percentual da bateria, ou `null` se o cliente não tiver bateria. |
+| `Abastecivel` | `double encherTanque()` e `int getPercentualTanque()` |
+| `Recarregavel` | `double carregarBateria()` e `int getPercentualBateria()` |
 
-A tela usa os dois últimos para desenhar as barras ⛽ e 🔌 em cima de cada cliente. Enquanto eles devolverem `null`, as barras não aparecem.
+| Cliente | Abastecivel | Recarregavel |
+| --- | :---: | :---: |
+| Carro | ✅ | |
+| Moto | ✅ | |
+| Gerador | ✅ | |
+| Cortador de grama | ✅ | |
+| Carro elétrico | | ✅ |
+| Patinete elétrico | | ✅ |
+| Carro híbrido | ✅ | ✅ |
+| Bicicleta | | |
 
-**Regra importante:** o `Posto` não pode perguntar *quem* é o cliente (`instanceof Carro`, `instanceof Moto`...). Ele deve perguntar o que o cliente *sabe fazer*.
+Na classe `Posto`, os métodos `abastecer`, `recarregar`, `percentualTanque` e `percentualBateria` usam `instanceof Abastecivel` ou `instanceof Recarregavel`, nunca uma classe concreta. Por isso uma classe nova (uma `Van` a diesel, por exemplo) é atendida sem alterar o `Posto`.
 
----
+## ✅ Resultado esperado
 
-## Como saber se terminou
+- Gol 1.0: `Gol 1.0 abastecido com 40,0 litros` e barra em 100%.
+- BYD Dolphin: `BYD Dolphin recarregado com 45,0 kWh` e barra em 100%.
+- Corolla Hybrid: atendido na bomba **e** no carregador.
+- Caloi Elite: ✖ nos dois lados (`não usa a bomba de combustível` / `não usa o carregador`).
 
-- Todos os clientes com tanque ou bateria mostram as barras na tela.
-- Cada um que vai até o lugar certo volta com ✔ e a barra cheia.
-- O Corolla Hybrid é atendido na bomba **e** no carregador.
-- A Caloi Elite volta com ✖ dos dois lados.
-- Se você criar uma classe nova (por exemplo, uma `Van` a diesel), o `Posto` atende ela sem precisar ser alterado.
+## 💭 Para pensar
 
----
+**Por que não colocar `encherTanque()` em `Veiculo`?**
+Nem todo veículo tem tanque (bicicleta, patinete). Ter tanque é uma capacidade, não uma categoria.
 
-## Para pensar
+**O Gerador não é `Veiculo`. Uma classe abstrata resolveria?**
+Não bem. Java permite herdar de uma só classe, e o híbrido precisaria de tanque e bateria ao mesmo tempo. Interfaces não têm esse limite.
 
+**O código de `encherTanque()` ficou repetido. Isso incomodou?**
+Sim: a mesma lógica está em 5 classes (e a da bateria em 3). Uma melhoria seria usar composição, com uma classe `Tanque` e uma `Bateria` que cada cliente usa por delegação.
+
+## 📁 Estrutura
+
+```
+src/main/java/br/com/joaocarloslima/posto/
+├── model/        # clientes, interfaces e a classe Posto
+├── controller/   # API usada pela tela (não alterado)
+└── PostoApplication.java
+src/main/resources/
+├── templates/    # tela (não alterado)
+└── static/js/    # jogo 3D (não alterado)
+```
 1. Por que não colocar `encherTanque()` direto em `Veiculo`?
 2. O `Gerador` não é um `Veiculo`, mas usa a bomba. Uma classe abstrata resolveria isso?
 3. O código de `encherTanque()` ficou igual em várias classes. Isso te incomodou?
